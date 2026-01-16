@@ -216,6 +216,23 @@
   border: 1px solid #e0e0e0;
 }
 
+.custom-fields-divider {
+  margin: 25px 0 15px;
+  padding-top: 20px;
+  border-top: 2px dashed #e0e0e0;
+  text-align: center;
+}
+
+.custom-fields-divider span {
+  background: white;
+  padding: 0 15px;
+  color: #666;
+  font-weight: 600;
+  font-size: 0.9rem;
+  position: relative;
+  top: -32px;
+}
+
 .generator-controls {
   display: flex;
   flex-direction: column;

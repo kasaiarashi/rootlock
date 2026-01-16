@@ -1,0 +1,166 @@
+.custom-fields-editor {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 2px dashed #e0e0e0;
+}
+
+.custom-fields-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.custom-fields-header label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.btn-add-field {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+}
+
+.btn-add-field:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.btn-add-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.custom-fields-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.custom-field-item {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.field-inputs {
+  display: grid;
+  grid-template-columns: 1fr 120px 1.5fr 40px;
+  gap: 8px;
+  align-items: center;
+}
+
+.field-label-input,
+.field-type-select,
+.field-value-input {
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.field-label-input:focus,
+.field-type-select:focus,
+.field-value-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.field-label-input {
+  font-weight: 500;
+}
+
+.field-type-select {
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-remove-field {
+  background: #fee;
+  border: 1px solid #fcc;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.btn-remove-field:hover:not(:disabled) {
+  background: #fcc;
+  border-color: #faa;
+}
+
+.btn-remove-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-field-prompt {
+  background: #f0f4ff;
+  border: 2px dashed #667eea;
+  border-radius: 6px;
+  padding: 20px;
+  text-align: center;
+}
+
+.add-field-prompt p {
+  margin: 0 0 15px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.add-field-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-confirm-add {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.btn-confirm-add:hover {
+  background: #5568d3;
+}
+
+.btn-cancel-add {
+  background: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.btn-cancel-add:hover {
+  background: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .field-inputs {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .btn-remove-field {
+    width: 100%;
+  }
+}

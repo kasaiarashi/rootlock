@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { VaultItemData, LoginItem, NoteItem, CardItem, IdentityItem } from '../types';
+import { VaultItemData, LoginItem, NoteItem, CardItem, IdentityItem, CustomField } from '../types';
 import { generatePassword, PasswordOptions, calculatePasswordStrength } from '../utils/passwordGenerator';
+import CustomFieldsEditor from './CustomFieldsEditor';
 import './Modal.css';
 
 interface AddItemModalProps {
@@ -20,10 +21,12 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
   const [loginPassword, setLoginPassword] = useState('');
   const [loginUrl, setLoginUrl] = useState('');
   const [loginNotes, setLoginNotes] = useState('');
+  const [loginCustomFields, setLoginCustomFields] = useState<CustomField[]>([]);
 
   // Note fields
   const [noteName, setNoteName] = useState('');
   const [noteContent, setNoteContent] = useState('');
+  const [noteCustomFields, setNoteCustomFields] = useState<CustomField[]>([]);
 
   // Card fields
   const [cardName, setCardName] = useState('');
@@ -33,6 +36,7 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
   const [expiryYear, setExpiryYear] = useState('');
   const [cvv, setCvv] = useState('');
   const [cardNotes, setCardNotes] = useState('');
+  const [cardCustomFields, setCardCustomFields] = useState<CustomField[]>([]);
 
   // Identity fields
   const [identityName, setIdentityName] = useState('');
@@ -42,6 +46,7 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [identityNotes, setIdentityNotes] = useState('');
+  const [identityCustomFields, setIdentityCustomFields] = useState<CustomField[]>([]);
 
   // Password generator
   const [passwordLength, setPasswordLength] = useState(16);
@@ -87,7 +92,8 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
             url: loginUrl || undefined,
             notes: loginNotes || undefined,
             favorite: false,
-            tags: []
+            tags: [],
+            customFields: loginCustomFields.length > 0 ? loginCustomFields : undefined
           } as LoginItem;
           break;
 
@@ -100,7 +106,8 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
             name: noteName,
             content: noteContent,
             favorite: false,
-            tags: []
+            tags: [],
+            customFields: noteCustomFields.length > 0 ? noteCustomFields : undefined
           } as NoteItem;
           break;
 
@@ -118,7 +125,8 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
             cvv,
             notes: cardNotes || undefined,
             favorite: false,
-            tags: []
+            tags: [],
+            customFields: cardCustomFields.length > 0 ? cardCustomFields : undefined
           } as CardItem;
           break;
 
@@ -136,7 +144,8 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
             address: address || undefined,
             notes: identityNotes || undefined,
             favorite: false,
-            tags: []
+            tags: [],
+            customFields: identityCustomFields.length > 0 ? identityCustomFields : undefined
           } as IdentityItem;
           break;
       }
@@ -325,6 +334,12 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
                     rows={3}
                   />
                 </div>
+
+                <CustomFieldsEditor
+                  fields={loginCustomFields}
+                  onChange={setLoginCustomFields}
+                  disabled={loading}
+                />
               </>
             )}
 
@@ -351,6 +366,12 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
                     required
                   />
                 </div>
+
+                <CustomFieldsEditor
+                  fields={noteCustomFields}
+                  onChange={setNoteCustomFields}
+                  disabled={loading}
+                />
               </>
             )}
 
@@ -437,6 +458,12 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
                     rows={3}
                   />
                 </div>
+
+                <CustomFieldsEditor
+                  fields={cardCustomFields}
+                  onChange={setCardCustomFields}
+                  disabled={loading}
+                />
               </>
             )}
 
@@ -516,6 +543,12 @@ export default function AddItemModal({ onClose, onSave }: AddItemModalProps) {
                     rows={3}
                   />
                 </div>
+
+                <CustomFieldsEditor
+                  fields={identityCustomFields}
+                  onChange={setIdentityCustomFields}
+                  disabled={loading}
+                />
               </>
             )}
 

@@ -18,6 +18,14 @@ export interface AuthState {
   masterEncryptionKey: string | null;
 }
 
+export interface CustomField {
+  id: string;
+  label: string;
+  value: string;
+  type: 'text' | 'password' | 'email' | 'url' | 'number';
+  hidden?: boolean; // For password-like fields
+}
+
 export interface LoginItem {
   type: 'login';
   name: string;
@@ -27,6 +35,7 @@ export interface LoginItem {
   notes?: string;
   favorite?: boolean;
   tags?: string[];
+  customFields?: CustomField[];
 }
 
 export interface NoteItem {
@@ -35,6 +44,7 @@ export interface NoteItem {
   content: string;
   favorite?: boolean;
   tags?: string[];
+  customFields?: CustomField[];
 }
 
 export interface CardItem {
@@ -48,6 +58,7 @@ export interface CardItem {
   notes?: string;
   favorite?: boolean;
   tags?: string[];
+  customFields?: CustomField[];
 }
 
 export interface IdentityItem {
@@ -61,6 +72,7 @@ export interface IdentityItem {
   notes?: string;
   favorite?: boolean;
   tags?: string[];
+  customFields?: CustomField[];
 }
 
 export type VaultItemData = LoginItem | NoteItem | CardItem | IdentityItem;

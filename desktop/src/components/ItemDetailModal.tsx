@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { VaultItem, VaultItemData, LoginItem, NoteItem, CardItem, IdentityItem } from '../types';
+import CustomFieldsEditor from './CustomFieldsEditor';
 import './Modal.css';
 
 interface ItemDetailModalProps {
@@ -121,6 +122,27 @@ export default function ItemDetailModal({
                   <p>{loginData.notes}</p>
                 </div>
               </div>
+            )}
+
+            {loginData.customFields && loginData.customFields.length > 0 && (
+              <>
+                <div className="custom-fields-divider">
+                  <span>Custom Fields</span>
+                </div>
+                {loginData.customFields.map((field) => (
+                  <div key={field.id} className="field-group">
+                    <label>{field.label}</label>
+                    <div className="field-value">
+                      <span className={field.hidden ? 'password-value' : ''}>
+                        {field.value}
+                      </span>
+                      <button onClick={() => handleCopy(field.value, field.label)} className="btn-icon">
+                        📋
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
           </div>
         );
@@ -320,6 +342,12 @@ export default function ItemDetailModal({
                 rows={3}
               />
             </div>
+
+            <CustomFieldsEditor
+              fields={formData.customFields || []}
+              onChange={(fields) => setFormData({ ...formData, customFields: fields })}
+              disabled={loading}
+            />
           </>
         );
 
