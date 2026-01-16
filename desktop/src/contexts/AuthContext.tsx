@@ -5,7 +5,7 @@ import * as api from '../api/tauri';
 
 interface AuthContextType extends AuthState {
   login: (email: string, masterPassword: string, secretKey: string) => Promise<void>;
-  register: (email: string, masterPassword: string) => Promise<{ secretKey: string }>;
+  register: (email: string, masterPassword: string) => Promise<{ secretKey: string; userId: string }>;
   logout: () => Promise<void>;
   setMasterEncryptionKey: (key: string | null) => void;
 }
@@ -36,29 +36,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initStore();
   }, []);
 
-  const register = async (email: string, masterPassword: string): Promise<{ secretKey: string }> => {
+  const register = async (email: string, masterPassword: string): Promise<{ secretKey: string; userId: string }> => {
     try {
       // Generate secret key
       const secretKey = await api.generateSecretKey();
       
-      // Derive MEK
-      const tempUserId = crypto.randomUUID(); // Temporary until we get real user ID
-      const mek = await api.deriveMasterKey(masterPassword, tempUserId, secretKey);
+      // Derive MEK with email as salt (deterministic, doesn't require user ID yet)
+      const mek = await api.deriveMasterKey(masterPassword, email, secretKey);
       
-      // Derive AUK
+      // Derive AUK from MEK
       const auk = await api.deriveAccountUnlockKey(mek);
       
-      // Register with backend
+      // Register with backend (sends AUK hash)
       const response = await api.registerUser(email, auk);
       
-      // Now derive MEK again with actual user ID
-      const actualMek = await api.deriveMasterKey(masterPassword, response.user.id, secretKey);
-      
       // Store MEK in memory (not persisted for security)
-      setMasterEncryptionKey(actualMek);
+      setMasterEncryptionKey(mek);
       
-      // Note: Secret key is returned to user to save securely
-      return { secretKey };
+      // Store user info
+      setUser(response.user);
+      
+      // Note: Secret key and user ID returned to user to save securely
+      return { secretKey, userId: response.user.id };
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
@@ -67,21 +66,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, masterPassword: string, secretKey: string): Promise<void> => {
     try {
-      // Note: We need user ID to derive MEK, but we don't have it yet
-      // So we'll do a two-step process:
-      // 1. First login to get user ID
-      // 2. Then derive MEK with correct user ID
+      // Derive MEK with email as salt (same as registration)
+      const mek = await api.deriveMasterKey(masterPassword, email, secretKey);
       
-      // For now, use temporary derivation
-      const tempUserId = crypto.randomUUID();
-      const tempMek = await api.deriveMasterKey(masterPassword, tempUserId, secretKey);
-      const auk = await api.deriveAccountUnlockKey(tempMek);
+      // Derive AUK from MEK
+      const auk = await api.deriveAccountUnlockKey(mek);
       
       // Login with backend
       const response = await api.loginUser(email, auk);
-      
-      // Now derive actual MEK with real user ID
-      const mek = await api.deriveMasterKey(masterPassword, response.user.id, secretKey);
       
       // Store auth data
       setUser(response.user);

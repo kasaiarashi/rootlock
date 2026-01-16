@@ -13,6 +13,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [secretKey, setSecretKey] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [showSecretKey, setShowSecretKey] = useState(false);
   const { register } = useAuth();
 
@@ -35,6 +36,7 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
     try {
       const result = await register(email, masterPassword);
       setSecretKey(result.secretKey);
+      setUserId(result.userId);
       setShowSecretKey(true);
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -76,7 +78,13 @@ export default function Register({ onSwitchToLogin }: RegisterProps) {
           <p>If you lose this key, you will <strong>permanently</strong> lose access to your data.</p>
         </div>
 
+        <div className="info-box">
+          <p><strong>📧 Email:</strong> {email}</p>
+          <p><strong>🆔 User ID:</strong> {userId}</p>
+        </div>
+
         <div className="secret-key-display">
+          <label>🔑 Secret Key:</label>
           <code>{secretKey}</code>
         </div>
 
