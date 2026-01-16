@@ -36,31 +36,31 @@ services:
       timeout: 5s
       retries: 5
 
-  # Backend will be added in Phase 2
-  # backend:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   container_name: rootlock-backend
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     DATABASE_URL: postgresql://rootlock:${DB_PASSWORD:-rootlock_dev_password}@postgres:5432/rootlock?sslmode=disable
-  #     REDIS_URL: redis://default:${REDIS_PASSWORD:-rootlock_dev_redis}@redis:6379/0
-  #     JWT_SECRET: ${JWT_SECRET}
-  #     SERVER_PORT: 8080
-  #     ENV: development
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rootlock-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_URL: postgresql://rootlock:${DB_PASSWORD:-rootlock_dev_password}@postgres:5432/rootlock?sslmode=disable
+      REDIS_URL: redis://default:${REDIS_PASSWORD:-rootlock_dev_redis}@redis:6379/0
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_secret_change_in_production}
+      SERVER_PORT: 8080
+      ENV: development
+      CORS_ORIGINS: http://localhost:3000,http://localhost:1420
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
   postgres_data:
