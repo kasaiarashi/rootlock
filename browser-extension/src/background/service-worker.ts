@@ -1,6 +1,16 @@
 // Background service worker for RootLock browser extension
 
+import {
+  initializeNativeMessaging,
+  getVaultStatus,
+  getCredentials,
+  generatePassword,
+} from '../shared/nativeMessaging';
+
 console.log('RootLock service worker initialized');
+
+// Initialize native messaging connection
+initializeNativeMessaging();
 
 // Handle extension installation
 chrome.runtime.onInstalled.addListener((details) => {
@@ -22,13 +32,40 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   
   switch (message.type) {
     case 'GET_STATUS':
-      // TODO: Check if desktop app is connected
-      sendResponse({ connected: false, locked: true });
+      // Check desktop app connection status
+      getVaultStatus()
+        .then((status) => {
+          sendResponse({ success: true, ...status });
+        })
+        .catch((error) => {
+          console.error('Failed to get status:', error);
+          sendResponse({ success: false, connected: false, locked: true });
+        });
       break;
       
     case 'GET_CREDENTIALS':
-      // TODO: Request credentials from desktop app via native messaging
-      sendResponse({ credentials: [] });
+      // Request credentials from desktop app via native messaging
+      const { url, domain } = message;
+      getCredentials(url, domain)
+        .then((credentials) => {
+          sendResponse({ success: true, credentials });
+        })
+        .catch((error) => {
+          console.error('Failed to get credentials:', error);
+          sendResponse({ success: false, credentials: [] });
+        });
+      break;
+      
+    case 'GENERATE_PASSWORD':
+      // Generate password via desktop app
+      generatePassword()
+        .then((result) => {
+          sendResponse({ success: true, password: result.password });
+        })
+        .catch((error) => {
+          console.error('Failed to generate password:', error);
+          sendResponse({ success: false, error: error.message });
+        });
       break;
       
     case 'SAVE_CREDENTIAL':

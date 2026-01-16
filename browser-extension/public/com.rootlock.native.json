@@ -1,0 +1,9 @@
+{
+  "name": "com.rootlock.native",
+  "description": "RootLock Native Messaging Host",
+  "path": "/Users/krishnateja/Developer/Work/rootlock/desktop/src-tauri/target/debug/native-messaging-host",
+  "type": "stdio",
+  "allowed_origins": [
+    "chrome-extension://EXTENSION_ID_HERE/"
+  ]
+}

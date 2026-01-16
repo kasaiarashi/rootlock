@@ -14,6 +14,10 @@ edition = "2021"
 name = "rootlock_desktop_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[[bin]]
+name = "native-messaging-host"
+path = "src/bin/native-messaging-host.rs"
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

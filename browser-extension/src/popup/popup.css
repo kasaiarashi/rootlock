@@ -78,6 +78,20 @@ body {
   color: #3c3;
 }
 
+.status-icon.disconnected {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .status-text h2 {
   font-size: 16px;
   font-weight: 600;
@@ -122,6 +136,12 @@ body {
 
 .action-btn:active {
   transform: translateY(0);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Footer */
