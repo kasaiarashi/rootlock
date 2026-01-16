@@ -2,7 +2,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
 import Unlock from './components/Unlock';
-import VaultManager from './components/VaultManager';
+import VaultManagerNew from './components/VaultManagerNew';
 import './App.css';
 import { useState } from 'react';
 
@@ -12,7 +12,7 @@ function AppContent() {
 
   // User is fully authenticated (has MEK in memory)
   if (isAuthenticated) {
-    return <VaultManager />;
+    return <VaultManagerNew />;
   }
 
   // User has a stored session but needs to unlock (re-enter password)
