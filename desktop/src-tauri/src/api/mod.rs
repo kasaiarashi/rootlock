@@ -133,6 +133,43 @@ pub fn login_user(email: String, auk: String) -> Result<LoginResponse, ApiError>
     })
 }
 
+/// Refresh access token
+#[tauri::command]
+pub fn refresh_token(refresh_token: String) -> Result<LoginResponse, ApiError> {
+    let client = Client::builder()
+        .timeout(Duration::from_secs(TIMEOUT_SECONDS))
+        .build()
+        .map_err(|e| ApiError {
+            message: format!("Failed to create HTTP client: {}", e),
+        })?;
+
+    #[derive(Serialize)]
+    struct RefreshRequest {
+        refresh_token: String,
+    }
+
+    let req = RefreshRequest { refresh_token };
+
+    let response = client
+        .post(format!("{}/auth/refresh", API_BASE_URL))
+        .json(&req)
+        .send()
+        .map_err(|e| ApiError {
+            message: format!("Refresh request failed: {}", e),
+        })?;
+
+    if !response.status().is_success() {
+        let error_text = response.text().unwrap_or_else(|_| "Unknown error".to_string());
+        return Err(ApiError {
+            message: format!("Token refresh failed: {}", error_text),
+        });
+    }
+
+    response.json::<LoginResponse>().map_err(|e| ApiError {
+        message: format!("Failed to parse response: {}", e),
+    })
+}
+
 /// Get user's vault
 #[tauri::command]
 pub fn get_vault(access_token: String) -> Result<VaultResponse, ApiError> {

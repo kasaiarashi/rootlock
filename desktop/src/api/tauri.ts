@@ -115,6 +115,12 @@ export async function loginUser(
   });
 }
 
+export async function refreshToken(refreshToken: string): Promise<LoginResponse> {
+  return await invoke('refresh_token', {
+    refreshToken,
+  });
+}
+
 export async function getVault(accessToken: string): Promise<VaultResponse> {
   return await invoke('get_vault', {
     accessToken,

@@ -20,6 +20,7 @@ pub fn run() {
             // API commands
             register_user,
             login_user,
+            refresh_token,
             get_vault,
             update_vault,
         ])

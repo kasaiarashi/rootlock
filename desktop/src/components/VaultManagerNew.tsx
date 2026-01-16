@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Vault, VaultItem, VaultItemData } from '../types';
+import { Store } from '@tauri-apps/plugin-store';
 import * as api from '../api/tauri';
 import {
   encryptVault,
@@ -21,7 +22,7 @@ import './VaultManagerNew.css';
 type CategoryType = 'all' | 'login' | 'note' | 'card' | 'identity' | 'favorites';
 
 export default function VaultManagerNew() {
-  const { user, tokens, masterEncryptionKey, logout } = useAuth();
+  const { user, tokens, masterEncryptionKey, logout, setTokens } = useAuth();
   const [vault, setVault] = useState<Vault>(createEmptyVault());
   const [vaultVersion, setVaultVersion] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,27 @@ export default function VaultManagerNew() {
   useEffect(() => {
     loadVault();
   }, []);
+
+  const refreshAccessToken = async (): Promise<boolean> => {
+    if (!tokens) return false;
+
+    try {
+      const response = await api.refreshToken(tokens.refresh_token);
+      setTokens(response.tokens);
+      
+      // Update stored tokens
+      const s = await Store.load('auth.json');
+      await s.set('tokens', response.tokens);
+      await s.save();
+      
+      return true;
+    } catch (err) {
+      console.error('Failed to refresh token:', err);
+      // Token refresh failed - need to re-login
+      await logout();
+      return false;
+    }
+  };
 
   const loadVault = async () => {
     if (!tokens || !masterEncryptionKey) return;
@@ -56,6 +78,17 @@ export default function VaultManagerNew() {
       }
     } catch (err: any) {
       console.error('Failed to load vault:', err);
+      
+      // Check if it's a token error
+      if (err.message && err.message.includes('invalid or expired token')) {
+        console.log('Token expired, attempting refresh...');
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          // Retry loading vault with new token
+          return loadVault();
+        }
+      }
+      
       setError('Failed to load vault: ' + err.message);
     } finally {
       setLoading(false);

@@ -9,6 +9,7 @@ interface AuthContextType extends AuthState {
   register: (email: string, masterPassword: string) => Promise<{ secretKey: string; userId: string }>;
   logout: () => Promise<void>;
   setMasterEncryptionKey: (key: string | null) => void;
+  setTokens: (tokens: AuthTokens | null) => void;
   hasStoredSession: boolean;
 }
 
@@ -179,6 +180,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         setMasterEncryptionKey,
+        setTokens,
       }}
     >
       {children}
