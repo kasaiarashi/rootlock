@@ -2,7 +2,7 @@
 name = "rootlock-desktop"
 version = "0.1.0"
 description = "RootLock Password Manager - Desktop Application"
-authors = ["RootLock Team"]
+authors = ["Krishna Teja <krishna18developer@gmail.com>"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

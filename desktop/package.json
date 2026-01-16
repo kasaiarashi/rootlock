@@ -2,6 +2,7 @@
   "name": "rootlock-desktop",
   "private": true,
   "version": "0.1.0",
+  "author": "Krishna Teja <krishna18developer@gmail.com>",
   "type": "module",
   "scripts": {
     "dev": "vite",
