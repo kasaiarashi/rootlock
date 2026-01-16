@@ -29,6 +29,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Load stored auth data
       const storedUser = await s.get<User>('user');
       const storedTokens = await s.get<AuthTokens>('tokens');
+      const storedSecretKey = await s.get<string>('secretKey');
+      
+      console.log('Loaded from store:', { 
+        hasUser: !!storedUser, 
+        hasTokens: !!storedTokens,
+        hasSecretKey: !!storedSecretKey,
+        userEmail: storedUser?.email
+      });
       
       if (storedUser && storedTokens) {
         setUser(storedUser);
@@ -67,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await store.set('tokens', loginResponse.tokens);
         await store.set('secretKey', secretKey); // Store secret key on device
         await store.save();
+        console.log('Registration: Saved to store', { email: loginResponse.user.email, hasSecretKey: !!secretKey });
       }
       
       // Note: Secret key and user ID returned to user to save securely (as backup)
@@ -98,6 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await store.set('tokens', response.tokens);
         await store.set('secretKey', secretKey); // Store secret key on device
         await store.save();
+        console.log('Login: Saved to store', { email: response.user.email, hasSecretKey: !!secretKey });
       }
     } catch (error) {
       console.error('Login failed:', error);
