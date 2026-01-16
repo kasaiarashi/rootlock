@@ -12,6 +12,7 @@ import {
   deleteItemFromVault
 } from '../utils/vaultEncryption';
 import AddItemModal from './AddItemModal';
+import CustomFieldsEditor from './CustomFieldsEditor';
 import { 
   Key, FileText, CreditCard, User, Folder, Star, 
   Database, Search, Plus, LogOut, Copy, Eye, EyeOff,
@@ -475,12 +476,280 @@ export default function VaultManagerNew() {
   const renderEditForm = () => {
     if (!editFormData) return null;
 
-    // For now, show a message that edit mode uses the full modal
-    return (
-      <div className="field-list">
-        <p className="edit-notice">Edit mode will use the modal interface for now. Click Cancel to return to view mode.</p>
-      </div>
-    );
+    const updateField = (field: string, value: any) => {
+      setEditFormData({ ...editFormData, [field]: value });
+    };
+
+    switch (editFormData.type) {
+      case 'login':
+        const loginData = editFormData as any;
+        return (
+          <div className="edit-form">
+            <div className="form-group">
+              <label>Name *</label>
+              <input
+                type="text"
+                value={loginData.name}
+                onChange={(e) => updateField('name', e.target.value)}
+                placeholder="Item name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Username *</label>
+              <input
+                type="text"
+                value={loginData.username}
+                onChange={(e) => updateField('username', e.target.value)}
+                placeholder="Username or email"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Password *</label>
+              <input
+                type="text"
+                value={loginData.password}
+                onChange={(e) => updateField('password', e.target.value)}
+                placeholder="Password"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Website URL</label>
+              <input
+                type="url"
+                value={loginData.url || ''}
+                onChange={(e) => updateField('url', e.target.value)}
+                placeholder="https://example.com"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                value={loginData.notes || ''}
+                onChange={(e) => updateField('notes', e.target.value)}
+                placeholder="Additional notes..."
+                rows={3}
+              />
+            </div>
+
+            <div className="form-section-title">Custom Fields</div>
+            <CustomFieldsEditor
+              fields={loginData.customFields || []}
+              onChange={(fields) => updateField('customFields', fields)}
+            />
+          </div>
+        );
+
+      case 'note':
+        const noteData = editFormData as any;
+        return (
+          <div className="edit-form">
+            <div className="form-group">
+              <label>Name *</label>
+              <input
+                type="text"
+                value={noteData.name}
+                onChange={(e) => updateField('name', e.target.value)}
+                placeholder="Note name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Content *</label>
+              <textarea
+                value={noteData.content}
+                onChange={(e) => updateField('content', e.target.value)}
+                placeholder="Your secure note..."
+                rows={10}
+              />
+            </div>
+
+            <div className="form-section-title">Custom Fields</div>
+            <CustomFieldsEditor
+              fields={noteData.customFields || []}
+              onChange={(fields) => updateField('customFields', fields)}
+            />
+          </div>
+        );
+
+      case 'card':
+        const cardData = editFormData as any;
+        return (
+          <div className="edit-form">
+            <div className="form-group">
+              <label>Name *</label>
+              <input
+                type="text"
+                value={cardData.name}
+                onChange={(e) => updateField('name', e.target.value)}
+                placeholder="Card name"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Cardholder Name *</label>
+              <input
+                type="text"
+                value={cardData.cardholderName}
+                onChange={(e) => updateField('cardholderName', e.target.value)}
+                placeholder="Name on card"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Card Number *</label>
+              <input
+                type="text"
+                value={cardData.cardNumber}
+                onChange={(e) => updateField('cardNumber', e.target.value)}
+                placeholder="1234 5678 9012 3456"
+                maxLength={19}
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Expiry Month *</label>
+                <input
+                  type="text"
+                  value={cardData.expiryMonth}
+                  onChange={(e) => updateField('expiryMonth', e.target.value)}
+                  placeholder="MM"
+                  maxLength={2}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Expiry Year *</label>
+                <input
+                  type="text"
+                  value={cardData.expiryYear}
+                  onChange={(e) => updateField('expiryYear', e.target.value)}
+                  placeholder="YYYY"
+                  maxLength={4}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>CVV *</label>
+                <input
+                  type="text"
+                  value={cardData.cvv}
+                  onChange={(e) => updateField('cvv', e.target.value)}
+                  placeholder="123"
+                  maxLength={4}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                value={cardData.notes || ''}
+                onChange={(e) => updateField('notes', e.target.value)}
+                placeholder="Additional notes..."
+                rows={3}
+              />
+            </div>
+
+            <div className="form-section-title">Custom Fields</div>
+            <CustomFieldsEditor
+              fields={cardData.customFields || []}
+              onChange={(fields) => updateField('customFields', fields)}
+            />
+          </div>
+        );
+
+      case 'identity':
+        const identityData = editFormData as any;
+        return (
+          <div className="edit-form">
+            <div className="form-group">
+              <label>Name *</label>
+              <input
+                type="text"
+                value={identityData.name}
+                onChange={(e) => updateField('name', e.target.value)}
+                placeholder="Identity name"
+              />
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>First Name *</label>
+                <input
+                  type="text"
+                  value={identityData.firstName}
+                  onChange={(e) => updateField('firstName', e.target.value)}
+                  placeholder="First name"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Last Name *</label>
+                <input
+                  type="text"
+                  value={identityData.lastName}
+                  onChange={(e) => updateField('lastName', e.target.value)}
+                  placeholder="Last name"
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                value={identityData.email || ''}
+                onChange={(e) => updateField('email', e.target.value)}
+                placeholder="email@example.com"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Phone</label>
+              <input
+                type="tel"
+                value={identityData.phone || ''}
+                onChange={(e) => updateField('phone', e.target.value)}
+                placeholder="+1 234 567 8900"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Address</label>
+              <textarea
+                value={identityData.address || ''}
+                onChange={(e) => updateField('address', e.target.value)}
+                placeholder="Full address..."
+                rows={3}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Notes</label>
+              <textarea
+                value={identityData.notes || ''}
+                onChange={(e) => updateField('notes', e.target.value)}
+                placeholder="Additional notes..."
+                rows={3}
+              />
+            </div>
+
+            <div className="form-section-title">Custom Fields</div>
+            <CustomFieldsEditor
+              fields={identityData.customFields || []}
+              onChange={(fields) => updateField('customFields', fields)}
+            />
+          </div>
+        );
+
+      default:
+        return null;
+    }
   };
 
   if (loading) {
