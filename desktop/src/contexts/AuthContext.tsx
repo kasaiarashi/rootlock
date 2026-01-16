@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const unlock = async (masterPassword: string): Promise<void> => {
     try {
-      if (!user || !store) {
+      if (!user || !store || !tokens) {
         throw new Error('No stored session found');
       }
 
@@ -130,10 +130,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Derive MEK with email as salt
       const mek = await api.deriveMasterKey(masterPassword, user.email, secretKey);
       
-      // Store MEK in memory only
+      // Try to decrypt vault to validate password is correct
+      const vaultResponse = await api.getVault(tokens.access_token);
+      
+      if (vaultResponse.encrypted_blob) {
+        // Derive VEK and attempt decryption
+        const vek = await api.deriveVaultEncryptionKey(mek);
+        
+        try {
+          // This will throw if password is wrong
+          await api.decryptData(vaultResponse.encrypted_blob, vek, 'vault');
+        } catch (decryptError) {
+          throw new Error('Invalid master password');
+        }
+      }
+      
+      // Only set MEK after successful validation
       setMasterEncryptionKey(mek);
     } catch (error) {
       console.error('Unlock failed:', error);
+      // Make sure MEK stays null if validation fails
+      setMasterEncryptionKey(null);
       throw error;
     }
   };
