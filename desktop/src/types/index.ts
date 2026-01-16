@@ -18,14 +18,56 @@ export interface AuthState {
   masterEncryptionKey: string | null;
 }
 
-export interface VaultItem {
-  id: string;
-  type: 'login' | 'note' | 'card' | 'identity';
+export interface LoginItem {
+  type: 'login';
   name: string;
-  username?: string;
-  password?: string;
+  username: string;
+  password: string;
   url?: string;
   notes?: string;
+  favorite?: boolean;
+  tags?: string[];
+}
+
+export interface NoteItem {
+  type: 'note';
+  name: string;
+  content: string;
+  favorite?: boolean;
+  tags?: string[];
+}
+
+export interface CardItem {
+  type: 'card';
+  name: string;
+  cardholderName: string;
+  cardNumber: string;
+  expiryMonth: string;
+  expiryYear: string;
+  cvv: string;
+  notes?: string;
+  favorite?: boolean;
+  tags?: string[];
+}
+
+export interface IdentityItem {
+  type: 'identity';
+  name: string;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  notes?: string;
+  favorite?: boolean;
+  tags?: string[];
+}
+
+export type VaultItemData = LoginItem | NoteItem | CardItem | IdentityItem;
+
+export interface VaultItem {
+  id: string;
+  data: VaultItemData;
   createdAt: string;
   updatedAt: string;
 }

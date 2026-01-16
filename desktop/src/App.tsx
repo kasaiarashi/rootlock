@@ -1,7 +1,7 @@
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './components/Login';
 import Register from './components/Register';
-import Vault from './components/Vault';
+import VaultManager from './components/VaultManager';
 import './App.css';
 import { useState } from 'react';
 
@@ -21,7 +21,7 @@ function AppContent() {
     );
   }
 
-  return <Vault />;
+  return <VaultManager />;
 }
 
 function App() {

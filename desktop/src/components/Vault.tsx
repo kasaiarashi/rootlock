@@ -76,15 +76,15 @@ export default function Vault() {
             {items.map((item) => (
               <div key={item.id} className="vault-item">
                 <div className="item-icon">
-                  {item.type === 'login' && '🔑'}
-                  {item.type === 'note' && '📝'}
-                  {item.type === 'card' && '💳'}
-                  {item.type === 'identity' && '👤'}
+                  {item.data.type === 'login' && '🔑'}
+                  {item.data.type === 'note' && '📝'}
+                  {item.data.type === 'card' && '💳'}
+                  {item.data.type === 'identity' && '👤'}
                 </div>
                 <div className="item-details">
-                  <h3>{item.name}</h3>
-                  {item.username && <p className="item-username">{item.username}</p>}
-                  {item.url && <p className="item-url">{item.url}</p>}
+                  <h3>{item.data.name}</h3>
+                  {item.data.type === 'login' && (item.data as any).username && <p className="item-username">{(item.data as any).username}</p>}
+                  {item.data.type === 'login' && (item.data as any).url && <p className="item-url">{(item.data as any).url}</p>}
                 </div>
               </div>
             ))}
