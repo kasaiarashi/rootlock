@@ -138,3 +138,49 @@ export async function updateVault(
     version,
   });
 }
+
+// Biometric Authentication
+export async function isBiometricAvailable(): Promise<boolean> {
+  try {
+    return await invoke('is_biometric_available');
+  } catch (error) {
+    console.error('Biometric check failed:', error);
+    return false;
+  }
+}
+
+export async function authenticateBiometric(reason: string): Promise<boolean> {
+  return await invoke('authenticate_biometric', { reason });
+}
+
+export async function storeBiometricCredential(
+  service: string,
+  account: string,
+  password: string
+): Promise<void> {
+  return await invoke('store_biometric_credential', {
+    service,
+    account,
+    password,
+  });
+}
+
+export async function getBiometricCredential(
+  service: string,
+  account: string
+): Promise<string> {
+  return await invoke('get_biometric_credential', {
+    service,
+    account,
+  });
+}
+
+export async function deleteBiometricCredential(
+  service: string,
+  account: string
+): Promise<void> {
+  return await invoke('delete_biometric_credential', {
+    service,
+    account,
+  });
+}

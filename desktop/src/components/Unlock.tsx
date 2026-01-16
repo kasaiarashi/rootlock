@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { Fingerprint } from 'lucide-react';
 import './Auth.css';
 
 export default function Unlock() {
   const [masterPassword, setMasterPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, unlock, logout } = useAuth();
+  const [biometricLoading, setBiometricLoading] = useState(false);
+  const { user, unlock, unlockWithBiometric, biometricAvailable, logout } = useAuth();
+
+  // Log biometric availability on mount
+  console.log('[Unlock Component] Biometric available:', biometricAvailable);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +29,24 @@ export default function Unlock() {
 
   const handleLogout = async () => {
     await logout();
+  };
+
+  const handleBiometricUnlock = async () => {
+    console.log('[Touch ID] Button clicked - starting biometric unlock...');
+    setError('');
+    setBiometricLoading(true);
+
+    try {
+      console.log('[Touch ID] Calling unlockWithBiometric()...');
+      await unlockWithBiometric();
+      console.log('[Touch ID] Unlock successful!');
+    } catch (err: any) {
+      console.error('[Touch ID] Unlock failed:', err);
+      setError(err.message || 'Biometric unlock failed');
+    } finally {
+      setBiometricLoading(false);
+      console.log('[Touch ID] Loading state cleared');
+    }
   };
 
   return (
@@ -60,15 +83,33 @@ export default function Unlock() {
           />
         </div>
 
-        <button type="submit" className="btn-primary" disabled={loading}>
+        <button type="submit" className="btn-primary" disabled={loading || biometricLoading}>
           {loading ? 'Unlocking...' : 'Unlock Vault'}
         </button>
+
+        {biometricAvailable && (
+          <>
+            <div className="divider">
+              <span>or</span>
+            </div>
+            
+            <button
+              type="button"
+              onClick={handleBiometricUnlock}
+              className="btn-biometric"
+              disabled={loading || biometricLoading}
+            >
+              <Fingerprint size={20} />
+              {biometricLoading ? 'Authenticating...' : 'Unlock with Touch ID'}
+            </button>
+          </>
+        )}
 
         <button
           type="button"
           onClick={handleLogout}
           className="btn-link"
-          disabled={loading}
+          disabled={loading || biometricLoading}
         >
           Logout and login with different account
         </button>
