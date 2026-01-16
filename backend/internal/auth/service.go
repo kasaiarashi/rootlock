@@ -181,3 +181,8 @@ func (s *Service) GetUserByID(userID uuid.UUID) (*UserResponse, error) {
 		LastLogin: user.LastLoginAt,
 	}, nil
 }
+
+// GenerateTokensForUser generates JWT tokens for a user
+func (s *Service) GenerateTokensForUser(userID uuid.UUID, email string) (*TokenPair, error) {
+	return s.jwtService.GenerateTokenPair(userID, email)
+}

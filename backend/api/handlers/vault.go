@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/rootlock/rootlock/backend/api/middleware"
+	"github.com/rootlock/rootlock/backend/internal/audit"
 	"github.com/rootlock/rootlock/backend/internal/vault"
 )
 
@@ -41,6 +42,15 @@ func (h *VaultHandler) GetVault(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get vault"})
 		}
 		return
+	}
+
+	// Log vault access
+	if auditSvc := middleware.GetAuditService(c); auditSvc != nil {
+		ip, ua, uid := middleware.GetAuditInfo(c)
+		auditSvc.LogSuccess(audit.EventVaultAccess, uid, ip, ua, map[string]interface{}{
+			"vault_id": userVault.ID,
+			"version":  userVault.Version,
+		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -83,6 +93,15 @@ func (h *VaultHandler) UpdateVault(c *gin.Context) {
 		Version:       req.Version,
 	})
 	if err != nil {
+		// Log failed vault update
+		if auditSvc := middleware.GetAuditService(c); auditSvc != nil {
+			ip, ua, uid := middleware.GetAuditInfo(c)
+			auditSvc.LogFailure(audit.EventVaultUpdate, uid, ip, ua, map[string]interface{}{
+				"error":   err.Error(),
+				"version": req.Version,
+			})
+		}
+
 		if err == vault.ErrVaultNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "vault not found"})
 		} else if err == vault.ErrVersionConflict {
@@ -91,6 +110,16 @@ func (h *VaultHandler) UpdateVault(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update vault"})
 		}
 		return
+	}
+
+	// Log successful vault update
+	if auditSvc := middleware.GetAuditService(c); auditSvc != nil {
+		ip, ua, uid := middleware.GetAuditInfo(c)
+		auditSvc.LogSuccess(audit.EventVaultUpdate, uid, ip, ua, map[string]interface{}{
+			"vault_id":    updatedVault.ID,
+			"new_version": updatedVault.Version,
+			"size_bytes":  len(encryptedBlob),
+		})
 	}
 
 	c.JSON(http.StatusOK, gin.H{
