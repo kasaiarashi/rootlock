@@ -5,9 +5,11 @@ import * as api from '../api/tauri';
 
 interface AuthContextType extends AuthState {
   login: (email: string, masterPassword: string, secretKey: string) => Promise<void>;
+  unlock: (masterPassword: string) => Promise<void>;
   register: (email: string, masterPassword: string) => Promise<{ secretKey: string; userId: string }>;
   logout: () => Promise<void>;
   setMasterEncryptionKey: (key: string | null) => void;
+  hasStoredSession: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -48,16 +50,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const auk = await api.deriveAccountUnlockKey(mek);
       
       // Register with backend (sends AUK hash)
-      const response = await api.registerUser(email, auk);
+      const registerResponse = await api.registerUser(email, auk);
+      
+      // After registration, login to get tokens
+      const loginResponse = await api.loginUser(email, auk);
       
       // Store MEK in memory (not persisted for security)
       setMasterEncryptionKey(mek);
       
-      // Store user info
-      setUser(response.user);
+      // Store user info, tokens, and secret key
+      setUser(loginResponse.user);
+      setTokens(loginResponse.tokens);
       
-      // Note: Secret key and user ID returned to user to save securely
-      return { secretKey, userId: response.user.id };
+      if (store) {
+        await store.set('user', loginResponse.user);
+        await store.set('tokens', loginResponse.tokens);
+        await store.set('secretKey', secretKey); // Store secret key on device
+        await store.save();
+      }
+      
+      // Note: Secret key and user ID returned to user to save securely (as backup)
+      return { secretKey, userId: registerResponse.user.id };
     } catch (error) {
       console.error('Registration failed:', error);
       throw error;
@@ -83,10 +96,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (store) {
         await store.set('user', response.user);
         await store.set('tokens', response.tokens);
+        await store.set('secretKey', secretKey); // Store secret key on device
         await store.save();
       }
     } catch (error) {
       console.error('Login failed:', error);
+      throw error;
+    }
+  };
+
+  const unlock = async (masterPassword: string): Promise<void> => {
+    try {
+      if (!user || !store) {
+        throw new Error('No stored session found');
+      }
+
+      // Get stored secret key from device
+      const secretKey = await store.get<string>('secretKey');
+      if (!secretKey) {
+        throw new Error('Secret key not found. Please login again.');
+      }
+
+      // Derive MEK with email as salt
+      const mek = await api.deriveMasterKey(masterPassword, user.email, secretKey);
+      
+      // Store MEK in memory only
+      setMasterEncryptionKey(mek);
+    } catch (error) {
+      console.error('Unlock failed:', error);
       throw error;
     }
   };
@@ -109,7 +146,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         tokens,
         masterEncryptionKey,
         isAuthenticated: !!user && !!tokens && !!masterEncryptionKey,
+        hasStoredSession: !!user && !!tokens,
         login,
+        unlock,
         register,
         logout,
         setMasterEncryptionKey,
