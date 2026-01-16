@@ -71,8 +71,8 @@ export async function decryptVault(encryptedBlob: string, vek: string): Promise<
  * Derives a per-item encryption key from VEK and item ID using HKDF
  */
 async function deriveItemKey(vek: string, itemId: string): Promise<string> {
-  // Convert VEK from hex to bytes
-  const vekBytes = hexToBytes(vek);
+  // Convert VEK from base64 to bytes
+  const vekBytes = base64ToBytes(vek);
   
   // Use HKDF to derive item-specific key
   // Format: HKDF(vek, salt=itemId, info="item_encryption")
@@ -101,28 +101,31 @@ async function deriveItemKey(vek: string, itemId: string): Promise<string> {
     256
   );
   
-  // Convert to hex string
-  return bytesToHex(new Uint8Array(derivedBits));
+  // Convert to base64 string for consistency with Tauri API
+  return bytesToBase64(new Uint8Array(derivedBits));
 }
 
 /**
- * Hex string to byte array
+ * Base64 string to byte array
  */
-function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
+function base64ToBytes(base64: string): Uint8Array {
+  const binaryString = atob(base64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
   }
   return bytes;
 }
 
 /**
- * Byte array to hex string
+ * Byte array to base64 string
  */
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes)
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+function bytesToBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
 }
 
 /**

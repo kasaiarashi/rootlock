@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         tokens,
         masterEncryptionKey,
-        isAuthenticated: !!user && !!tokens,
+        isAuthenticated: !!user && !!tokens && !!masterEncryptionKey,
         login,
         register,
         logout,
