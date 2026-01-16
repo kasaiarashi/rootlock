@@ -11,6 +11,11 @@ import {
   deleteItemFromVault
 } from '../utils/vaultEncryption';
 import AddItemModal from './AddItemModal';
+import { 
+  Key, FileText, CreditCard, User, Folder, Star, 
+  Database, Search, Plus, LogOut, Copy, Eye, EyeOff,
+  Inbox, ChevronRight, Trash2, Edit3, Save, X
+} from 'lucide-react';
 import './VaultManagerNew.css';
 
 type CategoryType = 'all' | 'login' | 'note' | 'card' | 'identity' | 'favorites';
@@ -144,14 +149,17 @@ export default function VaultManagerNew() {
   };
 
   const getItemIcon = (type: string) => {
+    const iconProps = { size: 18 };
     switch (type) {
-      case 'login': return 'key';
-      case 'note': return 'file-text';
-      case 'card': return 'credit-card';
-      case 'identity': return 'user';
-      default: return 'file';
+      case 'login': return <Key {...iconProps} />;
+      case 'note': return <FileText {...iconProps} />;
+      case 'card': return <CreditCard {...iconProps} />;
+      case 'identity': return <User {...iconProps} />;
+      default: return <FileText {...iconProps} />;
     }
   };
+
+  const [showPasswords, setShowPasswords] = useState<{[key: string]: boolean}>({});
 
   const getItemSubtitle = (item: VaultItem): string => {
     switch (item.data.type) {
@@ -212,15 +220,27 @@ export default function VaultManagerNew() {
               <div className="field-label">Username</div>
               <div className="field-value-row">
                 <div className="field-value">{loginData.username}</div>
-                <button className="btn-copy" onClick={() => handleCopy(loginData.username)}>Copy</button>
+                <button className="btn-copy" onClick={() => handleCopy(loginData.username)}>
+                  <Copy size={14} /> Copy
+                </button>
               </div>
             </div>
 
             <div className="field-item">
               <div className="field-label">Password</div>
               <div className="field-value-row">
-                <div className="field-value password-masked">••••••••</div>
-                <button className="btn-copy" onClick={() => handleCopy(loginData.password)}>Copy</button>
+                <div className="field-value password-masked">
+                  {showPasswords['password'] ? loginData.password : '••••••••'}
+                </div>
+                <button 
+                  className="btn-copy" 
+                  onClick={() => setShowPasswords({...showPasswords, password: !showPasswords['password']})}
+                >
+                  {showPasswords['password'] ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+                <button className="btn-copy" onClick={() => handleCopy(loginData.password)}>
+                  <Copy size={14} /> Copy
+                </button>
               </div>
             </div>
 
@@ -252,7 +272,9 @@ export default function VaultManagerNew() {
                       <div className={`field-value ${field.hidden ? 'password-masked' : ''}`}>
                         {field.hidden ? '••••••••' : field.value}
                       </div>
-                      <button className="btn-copy" onClick={() => handleCopy(field.value)}>Copy</button>
+                      <button className="btn-copy" onClick={() => handleCopy(field.value)}>
+                        <Copy size={14} /> Copy
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -446,7 +468,7 @@ export default function VaultManagerNew() {
         <div className="sidebar-header">
           <div className="logo">RootLock</div>
           <button className="btn-add-new" onClick={() => setShowAddModal(true)}>
-            New Item
+            <Plus size={16} /> New Item
           </button>
         </div>
 
@@ -455,7 +477,7 @@ export default function VaultManagerNew() {
             className={`nav-item ${selectedCategory === 'all' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('all')}
           >
-            <span className="nav-icon">folder</span>
+            <span className="nav-icon"><Folder size={16} /></span>
             <span className="nav-label">All Items</span>
             <span className="nav-count">{getCategoryCount('all')}</span>
           </button>
@@ -464,7 +486,7 @@ export default function VaultManagerNew() {
             className={`nav-item ${selectedCategory === 'favorites' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('favorites')}
           >
-            <span className="nav-icon">star</span>
+            <span className="nav-icon"><Star size={16} /></span>
             <span className="nav-label">Favorites</span>
             <span className="nav-count">{getCategoryCount('favorites')}</span>
           </button>
@@ -477,7 +499,7 @@ export default function VaultManagerNew() {
             className={`nav-item ${selectedCategory === 'login' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('login')}
           >
-            <span className="nav-icon">key</span>
+            <span className="nav-icon"><Key size={16} /></span>
             <span className="nav-label">Logins</span>
             <span className="nav-count">{getCategoryCount('login')}</span>
           </button>
@@ -486,7 +508,7 @@ export default function VaultManagerNew() {
             className={`nav-item ${selectedCategory === 'note' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('note')}
           >
-            <span className="nav-icon">file-text</span>
+            <span className="nav-icon"><FileText size={16} /></span>
             <span className="nav-label">Notes</span>
             <span className="nav-count">{getCategoryCount('note')}</span>
           </button>
@@ -495,7 +517,7 @@ export default function VaultManagerNew() {
             className={`nav-item ${selectedCategory === 'card' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('card')}
           >
-            <span className="nav-icon">credit-card</span>
+            <span className="nav-icon"><CreditCard size={16} /></span>
             <span className="nav-label">Cards</span>
             <span className="nav-count">{getCategoryCount('card')}</span>
           </button>
@@ -504,7 +526,7 @@ export default function VaultManagerNew() {
             className={`nav-item ${selectedCategory === 'identity' ? 'active' : ''}`}
             onClick={() => setSelectedCategory('identity')}
           >
-            <span className="nav-icon">user</span>
+            <span className="nav-icon"><User size={16} /></span>
             <span className="nav-label">Identities</span>
             <span className="nav-count">{getCategoryCount('identity')}</span>
           </button>
@@ -513,7 +535,7 @@ export default function VaultManagerNew() {
         <div className="sidebar-footer">
           <div className="vault-switcher">
             <div className="current-vault">
-              <span className="vault-icon">database</span>
+              <span className="vault-icon"><Database size={20} /></span>
               <div className="vault-info">
                 <div className="vault-name">Personal Vault</div>
                 <div className="vault-email">{user?.email}</div>
@@ -521,7 +543,7 @@ export default function VaultManagerNew() {
             </div>
           </div>
           <button className="btn-logout" onClick={logout}>
-            Logout
+            <LogOut size={14} /> Logout
           </button>
         </div>
       </aside>
@@ -530,7 +552,7 @@ export default function VaultManagerNew() {
       <main className="vault-main">
         <div className="main-header">
           <div className="search-bar">
-            <span className="search-icon">search</span>
+            <span className="search-icon"><Search size={16} /></span>
             <input
               type="text"
               placeholder="Search vault..."
@@ -550,7 +572,7 @@ export default function VaultManagerNew() {
         <div className="items-list">
           {filteredItems.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">inbox</div>
+              <div className="empty-icon"><Inbox size={48} strokeWidth={1.5} /></div>
               <h3>No items found</h3>
               {vault.items.length === 0 ? (
                 <p>Get started by creating your first vault item</p>
@@ -575,7 +597,7 @@ export default function VaultManagerNew() {
                   <div className="item-name">{item.data.name}</div>
                   <div className="item-subtitle">{getItemSubtitle(item)}</div>
                 </div>
-                {item.data.favorite && <span className="favorite-indicator">star</span>}
+                {item.data.favorite && <span className="favorite-indicator"><Star size={14} fill="currentColor" /></span>}
               </div>
             ))
           )}
@@ -594,7 +616,10 @@ export default function VaultManagerNew() {
                   onClick={() => handleToggleFavorite(selectedItem.id)}
                   title={selectedItem.data.favorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
-                  {selectedItem.data.favorite ? 'star-filled' : 'star'}
+                  {selectedItem.data.favorite ? 
+                    <Star size={18} fill="currentColor" /> : 
+                    <Star size={18} />
+                  }
                 </button>
               </div>
               <div className="detail-type">{selectedItem.data.type}</div>
@@ -604,19 +629,19 @@ export default function VaultManagerNew() {
               {!isEditing ? (
                 <>
                   <button className="btn-action" onClick={startEditing}>
-                    Edit
+                    <Edit3 size={14} /> Edit
                   </button>
                   <button className="btn-action btn-danger" onClick={() => handleDeleteItem(selectedItem.id)}>
-                    Delete
+                    <Trash2 size={14} /> Delete
                   </button>
                 </>
               ) : (
                 <>
                   <button className="btn-action btn-primary" onClick={handleUpdateItem}>
-                    Save Changes
+                    <Save size={14} /> Save Changes
                   </button>
                   <button className="btn-action" onClick={cancelEditing}>
-                    Cancel
+                    <X size={14} /> Cancel
                   </button>
                 </>
               )}
@@ -628,7 +653,7 @@ export default function VaultManagerNew() {
           </div>
         ) : (
           <div className="detail-empty">
-            <div className="empty-icon">select</div>
+            <div className="empty-icon"><ChevronRight size={64} strokeWidth={1} /></div>
             <h3>No item selected</h3>
             <p>Select an item from the list to view its details</p>
           </div>
