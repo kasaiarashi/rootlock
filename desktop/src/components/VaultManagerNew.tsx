@@ -168,6 +168,14 @@ export default function VaultManagerNew() {
     }
   };
 
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   const startEditing = () => {
     if (selectedItem) {
       setEditFormData({ ...selectedItem.data });
@@ -178,6 +186,246 @@ export default function VaultManagerNew() {
   const cancelEditing = () => {
     setIsEditing(false);
     setEditFormData(null);
+  };
+
+  const renderDetailContent = () => {
+    if (!selectedItem) return null;
+
+    if (isEditing && editFormData) {
+      return renderEditForm();
+    } else {
+      return renderViewMode();
+    }
+  };
+
+  const renderViewMode = () => {
+    if (!selectedItem) return null;
+
+    const data = selectedItem.data;
+
+    switch (data.type) {
+      case 'login':
+        const loginData = data as any;
+        return (
+          <div className="field-list">
+            <div className="field-item">
+              <div className="field-label">Username</div>
+              <div className="field-value-row">
+                <div className="field-value">{loginData.username}</div>
+                <button className="btn-copy" onClick={() => handleCopy(loginData.username)}>Copy</button>
+              </div>
+            </div>
+
+            <div className="field-item">
+              <div className="field-label">Password</div>
+              <div className="field-value-row">
+                <div className="field-value password-masked">••••••••</div>
+                <button className="btn-copy" onClick={() => handleCopy(loginData.password)}>Copy</button>
+              </div>
+            </div>
+
+            {loginData.url && (
+              <div className="field-item">
+                <div className="field-label">Website</div>
+                <div className="field-value-row">
+                  <a href={loginData.url} target="_blank" rel="noopener noreferrer" className="field-value link">
+                    {loginData.url}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {loginData.notes && (
+              <div className="field-item">
+                <div className="field-label">Notes</div>
+                <div className="field-value">{loginData.notes}</div>
+              </div>
+            )}
+
+            {loginData.customFields && loginData.customFields.length > 0 && (
+              <>
+                <div className="field-section-title">Custom Fields</div>
+                {loginData.customFields.map((field: any) => (
+                  <div key={field.id} className="field-item">
+                    <div className="field-label">{field.label}</div>
+                    <div className="field-value-row">
+                      <div className={`field-value ${field.hidden ? 'password-masked' : ''}`}>
+                        {field.hidden ? '••••••••' : field.value}
+                      </div>
+                      <button className="btn-copy" onClick={() => handleCopy(field.value)}>Copy</button>
+                    </div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            <div className="field-metadata">
+              <div className="metadata-item">Created: {new Date(selectedItem.createdAt).toLocaleDateString()}</div>
+              <div className="metadata-item">Updated: {new Date(selectedItem.updatedAt).toLocaleDateString()}</div>
+            </div>
+          </div>
+        );
+
+      case 'note':
+        const noteData = data as any;
+        return (
+          <div className="field-list">
+            <div className="field-item">
+              <div className="field-label">Content</div>
+              <div className="field-value note-content">{noteData.content}</div>
+            </div>
+
+            {noteData.customFields && noteData.customFields.length > 0 && (
+              <>
+                <div className="field-section-title">Custom Fields</div>
+                {noteData.customFields.map((field: any) => (
+                  <div key={field.id} className="field-item">
+                    <div className="field-label">{field.label}</div>
+                    <div className="field-value">{field.value}</div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            <div className="field-metadata">
+              <div className="metadata-item">Created: {new Date(selectedItem.createdAt).toLocaleDateString()}</div>
+              <div className="metadata-item">Updated: {new Date(selectedItem.updatedAt).toLocaleDateString()}</div>
+            </div>
+          </div>
+        );
+
+      case 'card':
+        const cardData = data as any;
+        return (
+          <div className="field-list">
+            <div className="field-item">
+              <div className="field-label">Cardholder Name</div>
+              <div className="field-value">{cardData.cardholderName}</div>
+            </div>
+
+            <div className="field-item">
+              <div className="field-label">Card Number</div>
+              <div className="field-value-row">
+                <div className="field-value">•••• •••• •••• {cardData.cardNumber.slice(-4)}</div>
+                <button className="btn-copy" onClick={() => handleCopy(cardData.cardNumber)}>Copy</button>
+              </div>
+            </div>
+
+            <div className="field-item">
+              <div className="field-label">Expiry Date</div>
+              <div className="field-value">{cardData.expiryMonth}/{cardData.expiryYear}</div>
+            </div>
+
+            <div className="field-item">
+              <div className="field-label">CVV</div>
+              <div className="field-value-row">
+                <div className="field-value password-masked">•••</div>
+                <button className="btn-copy" onClick={() => handleCopy(cardData.cvv)}>Copy</button>
+              </div>
+            </div>
+
+            {cardData.notes && (
+              <div className="field-item">
+                <div className="field-label">Notes</div>
+                <div className="field-value">{cardData.notes}</div>
+              </div>
+            )}
+
+            {cardData.customFields && cardData.customFields.length > 0 && (
+              <>
+                <div className="field-section-title">Custom Fields</div>
+                {cardData.customFields.map((field: any) => (
+                  <div key={field.id} className="field-item">
+                    <div className="field-label">{field.label}</div>
+                    <div className="field-value">{field.value}</div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            <div className="field-metadata">
+              <div className="metadata-item">Created: {new Date(selectedItem.createdAt).toLocaleDateString()}</div>
+              <div className="metadata-item">Updated: {new Date(selectedItem.updatedAt).toLocaleDateString()}</div>
+            </div>
+          </div>
+        );
+
+      case 'identity':
+        const identityData = data as any;
+        return (
+          <div className="field-list">
+            <div className="field-item">
+              <div className="field-label">Full Name</div>
+              <div className="field-value">{identityData.firstName} {identityData.lastName}</div>
+            </div>
+
+            {identityData.email && (
+              <div className="field-item">
+                <div className="field-label">Email</div>
+                <div className="field-value-row">
+                  <div className="field-value">{identityData.email}</div>
+                  <button className="btn-copy" onClick={() => handleCopy(identityData.email)}>Copy</button>
+                </div>
+              </div>
+            )}
+
+            {identityData.phone && (
+              <div className="field-item">
+                <div className="field-label">Phone</div>
+                <div className="field-value-row">
+                  <div className="field-value">{identityData.phone}</div>
+                  <button className="btn-copy" onClick={() => handleCopy(identityData.phone)}>Copy</button>
+                </div>
+              </div>
+            )}
+
+            {identityData.address && (
+              <div className="field-item">
+                <div className="field-label">Address</div>
+                <div className="field-value">{identityData.address}</div>
+              </div>
+            )}
+
+            {identityData.notes && (
+              <div className="field-item">
+                <div className="field-label">Notes</div>
+                <div className="field-value">{identityData.notes}</div>
+              </div>
+            )}
+
+            {identityData.customFields && identityData.customFields.length > 0 && (
+              <>
+                <div className="field-section-title">Custom Fields</div>
+                {identityData.customFields.map((field: any) => (
+                  <div key={field.id} className="field-item">
+                    <div className="field-label">{field.label}</div>
+                    <div className="field-value">{field.value}</div>
+                  </div>
+                ))}
+              </>
+            )}
+
+            <div className="field-metadata">
+              <div className="metadata-item">Created: {new Date(selectedItem.createdAt).toLocaleDateString()}</div>
+              <div className="metadata-item">Updated: {new Date(selectedItem.updatedAt).toLocaleDateString()}</div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const renderEditForm = () => {
+    if (!editFormData) return null;
+
+    // For now, show a message that edit mode uses the full modal
+    return (
+      <div className="field-list">
+        <p className="edit-notice">Edit mode will use the modal interface for now. Click Cancel to return to view mode.</p>
+      </div>
+    );
   };
 
   if (loading) {
@@ -375,9 +623,7 @@ export default function VaultManagerNew() {
             </div>
 
             <div className="detail-content">
-              {/* Render fields based on item type and edit mode */}
-              {/* This will be expanded in the next section */}
-              <p>Details panel content here...</p>
+              {renderDetailContent()}
             </div>
           </div>
         ) : (
