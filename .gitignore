@@ -1,0 +1,127 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Go
+backend/bin/
+backend/vendor/
+backend/*.exe
+backend/*.test
+backend/*.out
+backend/coverage.txt
+backend/.air.toml
+
+# Node.js / React / Browser Extension
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+*.tsbuildinfo
+.next/
+.cache/
+.parcel-cache/
+
+# Tauri / Desktop
+desktop/src-tauri/target/
+desktop/src-tauri/Cargo.lock
+desktop/ui/dist/
+desktop/ui/build/
+
+# Rust / CLI
+cli/target/
+cli/Cargo.lock
+**/*.rs.bk
+
+# iOS / Xcode
+mobile/ios/*.xcodeproj/*
+!mobile/ios/*.xcodeproj/project.pbxproj
+!mobile/ios/*.xcodeproj/xcshareddata
+mobile/ios/*.xcworkspace/*
+!mobile/ios/*.xcworkspace/contents.xcworkspacedata
+!mobile/ios/*.xcworkspace/xcshareddata
+mobile/ios/DerivedData/
+mobile/ios/Build/
+mobile/ios/*.ipa
+mobile/ios/*.dSYM.zip
+mobile/ios/*.dSYM
+mobile/ios/.swiftpm
+mobile/ios/Pods/
+mobile/ios/Podfile.lock
+
+# Android
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/*.apk
+mobile/android/*.aab
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+coverage/
+*.cover
+*.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+temp/
+tmp/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker
+.dockerignore
+
+# Security - Never commit secrets
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Build artifacts
+*.so
+*.dylib
+*.dll
+*.exe
+
+# OS specific
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Backup files
+*~
+.backup
+*.orig
+
+# Documentation builds
+docs/_build/
+site/
+
+# Test files
+test-results/
+e2e-results/
+playwright-report/
