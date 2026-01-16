@@ -7,6 +7,8 @@ export default defineConfig({
     react(),
     webExtension({
       manifest: './manifest.json',
+      // Disable update checks that cause JSON parse errors
+      disableAutoLaunch: true,
     }),
   ],
   build: {

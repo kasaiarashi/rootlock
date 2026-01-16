@@ -139,6 +139,8 @@ npm run dev
 ```
 Changes will automatically rebuild. Reload the extension in your browser to see updates.
 
+**Note:** You may see a JSON parse error at the end - this is a non-critical error from vite-plugin-web-extension trying to check for updates. The extension builds successfully despite this error.
+
 ### Build for Production
 ```bash
 npm run build
