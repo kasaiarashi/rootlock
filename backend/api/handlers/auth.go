@@ -138,8 +138,13 @@ func (h *AuthHandler) RefreshToken(c *gin.Context) {
 		auditSvc.LogSuccess(audit.EventTokenRefresh, userID, ip, ua, nil)
 	}
 
+	// Return the same format as login for consistency
 	c.JSON(http.StatusOK, gin.H{
-		"access_token": accessToken,
+		"tokens": gin.H{
+			"access_token":  accessToken,
+			"refresh_token": req.RefreshToken, // Keep the same refresh token
+			"expires_in":    900,              // 15 minutes in seconds
+		},
 	})
 }
 

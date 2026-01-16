@@ -34,26 +34,70 @@ export default function VaultManagerNew() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState<VaultItemData | null>(null);
+  const [detailPanelWidth, setDetailPanelWidth] = useState(400);
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     loadVault();
   }, []);
 
+  // Handle panel resize
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const newWidth = window.innerWidth - e.clientX;
+      setDetailPanelWidth(Math.max(300, Math.min(800, newWidth)));
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ew-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
   const refreshAccessToken = async (): Promise<boolean> => {
-    if (!tokens) return false;
+    console.log('[Token Refresh] Starting token refresh...');
+    
+    if (!tokens) {
+      console.log('[Token Refresh] No tokens available, skipping refresh');
+      return false;
+    }
+
+    console.log('[Token Refresh] Current refresh token:', tokens.refresh_token.substring(0, 20) + '...');
 
     try {
+      console.log('[Token Refresh] Calling api.refreshToken...');
       const response = await api.refreshToken(tokens.refresh_token);
+      console.log('[Token Refresh] Refresh successful, received new tokens');
+      console.log('[Token Refresh] New access token:', response.tokens.access_token.substring(0, 20) + '...');
+      
       setTokens(response.tokens);
       
       // Update stored tokens
+      console.log('[Token Refresh] Updating stored tokens...');
       const s = await Store.load('auth.json');
       await s.set('tokens', response.tokens);
       await s.save();
+      console.log('[Token Refresh] Tokens saved to storage');
       
       return true;
     } catch (err) {
-      console.error('Failed to refresh token:', err);
+      console.error('[Token Refresh] Failed to refresh token:', err);
+      console.log('[Token Refresh] Error type:', typeof err);
+      console.log('[Token Refresh] Error details:', JSON.stringify(err, null, 2));
       // Token refresh failed - need to re-login
       await logout();
       return false;
@@ -78,19 +122,37 @@ export default function VaultManagerNew() {
         setVault(createEmptyVault());
       }
     } catch (err: any) {
-      console.error('Failed to load vault:', err);
+      console.error('[Vault Load] Failed to load vault:', err);
+      console.log('[Vault Load] Error type:', typeof err);
+      console.log('[Vault Load] Error has message?', err.message !== undefined);
+      console.log('[Vault Load] Error message:', err.message);
+      console.log('[Vault Load] Error details:', JSON.stringify(err));
       
-      // Check if it's a token error
-      if (err.message && err.message.includes('invalid or expired token')) {
-        console.log('Token expired, attempting refresh...');
+      // Check if it's a token error - check both message and error string
+      const errorStr = JSON.stringify(err).toLowerCase();
+      console.log('[Vault Load] Error string (lowercase):', errorStr);
+      
+      const isTokenError = 
+        (err.message && err.message.toLowerCase().includes('invalid or expired token')) ||
+        errorStr.includes('invalid or expired token') ||
+        errorStr.includes('unauthorized');
+      
+      console.log('[Vault Load] Is token error?', isTokenError);
+      
+      if (isTokenError) {
+        console.log('[Vault Load] Token expired, attempting refresh...');
+        setLoading(false); // Stop loading to show refresh is happening
         const refreshed = await refreshAccessToken();
         if (refreshed) {
           // Retry loading vault with new token
+          console.log('[Vault Load] Token refreshed successfully, retrying vault load...');
           return loadVault();
+        } else {
+          console.log('[Vault Load] Token refresh failed, user needs to re-login');
         }
       }
       
-      setError('Failed to load vault: ' + err.message);
+      setError('Failed to load vault. Please try logging in again.');
     } finally {
       setLoading(false);
     }
@@ -108,8 +170,31 @@ export default function VaultManagerNew() {
       setVault(updatedVault);
       setVaultVersion(response.version);
     } catch (err: any) {
-      console.error('Failed to save vault:', err);
-      setError('Failed to save vault: ' + err.message);
+      console.error('[Vault Save] Failed to save vault:', err);
+      console.log('[Vault Save] Error details:', JSON.stringify(err));
+      
+      // Check if it's a token error
+      const errorStr = JSON.stringify(err).toLowerCase();
+      const isTokenError = 
+        (err.message && err.message.toLowerCase().includes('invalid or expired token')) ||
+        errorStr.includes('invalid or expired token') ||
+        errorStr.includes('unauthorized');
+      
+      console.log('[Vault Save] Is token error?', isTokenError);
+      
+      if (isTokenError) {
+        console.log('[Vault Save] Token expired during save, attempting refresh...');
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          // Retry saving vault with new token
+          console.log('[Vault Save] Token refreshed, retrying vault save...');
+          return saveVault(updatedVault);
+        } else {
+          console.log('[Vault Save] Token refresh failed');
+        }
+      }
+      
+      setError('Failed to save vault. Please try again.');
       throw err;
     }
   };
@@ -907,7 +992,11 @@ export default function VaultManagerNew() {
       </main>
 
       {/* Right Panel - Item Details */}
-      <aside className="vault-detail">
+      <aside className="vault-detail" style={{ width: `${detailPanelWidth}px` }}>
+        <div 
+          className="resize-handle"
+          onMouseDown={() => setIsResizing(true)}
+        />
         {selectedItem ? (
           <div className="detail-container">
             <div className="detail-header">

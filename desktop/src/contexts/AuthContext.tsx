@@ -132,7 +132,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const mek = await api.deriveMasterKey(masterPassword, user.email, secretKey);
       
       // Try to decrypt vault to validate password is correct
-      const vaultResponse = await api.getVault(tokens.access_token);
+      let vaultResponse;
+      let currentAccessToken = tokens.access_token;
+      
+      try {
+        vaultResponse = await api.getVault(currentAccessToken);
+      } catch (error: any) {
+        console.log('[Unlock] Vault access failed, checking if token expired...', error);
+        
+        // Check if it's a token error
+        const errorStr = JSON.stringify(error).toLowerCase();
+        const isTokenError = 
+          (error.message && error.message.toLowerCase().includes('invalid or expired token')) ||
+          errorStr.includes('invalid or expired token') ||
+          errorStr.includes('unauthorized');
+        
+        if (isTokenError) {
+          console.log('[Unlock] Token expired, attempting refresh...');
+          try {
+            // Attempt to refresh the token
+            const refreshResponse = await api.refreshToken(tokens.refresh_token);
+            console.log('[Unlock] Token refresh successful');
+            
+            // Update tokens in state and storage
+            setTokens(refreshResponse.tokens);
+            await store.set('tokens', refreshResponse.tokens);
+            await store.save();
+            
+            // Retry with new token
+            currentAccessToken = refreshResponse.tokens.access_token;
+            vaultResponse = await api.getVault(currentAccessToken);
+            console.log('[Unlock] Vault access successful with refreshed token');
+          } catch (refreshError) {
+            console.error('[Unlock] Token refresh failed:', refreshError);
+            throw new Error('Session expired. Please login again.');
+          }
+        } else {
+          // Not a token error, re-throw
+          throw error;
+        }
+      }
       
       if (vaultResponse.encrypted_blob) {
         // Derive VEK and attempt decryption

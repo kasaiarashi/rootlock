@@ -45,16 +45,33 @@
 
 .custom-field-item {
   background: #f8f9fa;
-  padding: 12px;
+  padding: 16px;
   border-radius: 6px;
   border: 1px solid #e0e0e0;
 }
 
-.field-inputs {
+.field-row-top {
   display: grid;
-  grid-template-columns: 1fr 120px 1.5fr 40px;
-  gap: 8px;
-  align-items: center;
+  grid-template-columns: 1fr 140px 40px;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+
+.field-label-group,
+.field-type-group,
+.field-value-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .field-label-input,
@@ -83,6 +100,10 @@
   cursor: pointer;
 }
 
+.field-value-input {
+  width: 100%;
+}
+
 .btn-remove-field {
   background: #fee;
   border: 1px solid #fcc;
@@ -103,61 +124,11 @@
   cursor: not-allowed;
 }
 
-.add-field-prompt {
-  background: #f0f4ff;
-  border: 2px dashed #667eea;
-  border-radius: 6px;
-  padding: 20px;
-  text-align: center;
-}
-
-.add-field-prompt p {
-  margin: 0 0 15px;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.add-field-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.btn-confirm-add {
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-
-.btn-confirm-add:hover {
-  background: #5568d3;
-}
-
-.btn-cancel-add {
-  background: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
-  padding: 8px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.btn-cancel-add:hover {
-  background: #e0e0e0;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
-  .field-inputs {
+  .field-row-top {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 12px;
   }
   
   .btn-remove-field {
